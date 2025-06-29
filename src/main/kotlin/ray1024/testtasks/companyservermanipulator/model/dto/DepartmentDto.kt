@@ -5,6 +5,6 @@ data class DepartmentDto(
     val name: String?,
     val location: String?,
     val companyId: Long?,
-    val employees: List<EmployeeDto>?,
-    val servers: List<ServerDto>?
+    val employeeIds: List<Long>?,
+    val serverIds: List<Long>?
 )

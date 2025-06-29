@@ -10,5 +10,5 @@ data class EmployeeDto(
     val position: String?,
     val hireDate: LocalDate?,
     val departmentId: Long?,
-    val responsibleForServers: List<ServerDto>?
+    val responsibleForServerIds: List<Long>?
 )

@@ -7,5 +7,5 @@ data class CompanyDto(
     val name: String?,
     val description: String?,
     val foundedDate: LocalDate?,
-    val departments: List<DepartmentDto>?
+    val departmentIds: List<Long>?
 )
