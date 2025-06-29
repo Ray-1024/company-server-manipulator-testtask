@@ -27,6 +27,9 @@ data class Employee(
     @JoinColumn(name = "department_id", nullable = false)
     var department: Department,
 
-    @OneToMany(mappedBy = "responsibleEmployee")
+    @OneToMany(
+        mappedBy = "responsibleEmployee",
+        targetEntity = Server::class
+    )
     var responsibleForServers: List<Server> = mutableListOf()
 )

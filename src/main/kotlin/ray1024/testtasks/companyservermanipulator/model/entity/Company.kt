@@ -18,6 +18,11 @@ data class Company(
     @Column(nullable = false)
     var foundedDate: LocalDate,
 
-    @OneToMany(mappedBy = "company", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToMany(
+        mappedBy = "company",
+        cascade = [CascadeType.ALL],
+        orphanRemoval = true,
+        targetEntity = Department::class
+    )
     var departments: List<Department> = mutableListOf()
 )

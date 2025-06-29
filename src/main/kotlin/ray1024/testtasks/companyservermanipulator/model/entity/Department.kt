@@ -17,9 +17,15 @@ data class Department(
     @JoinColumn(name = "company_id", nullable = false)
     var company: Company,
 
-    @OneToMany(mappedBy = "department", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToMany(
+        mappedBy = "department", cascade = [CascadeType.ALL], orphanRemoval = true,
+        targetEntity = Employee::class
+    )
     var employees: List<Employee> = mutableListOf(),
 
-    @OneToMany(mappedBy = "department", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToMany(
+        mappedBy = "department", cascade = [CascadeType.ALL], orphanRemoval = true,
+        targetEntity = Server::class
+    )
     var servers: List<Server> = mutableListOf()
 )
