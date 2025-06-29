@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import ray1024.testtasks.companyservermanipulator.exception.ResourceAlreadyExistsException
 import ray1024.testtasks.companyservermanipulator.exception.ResourceNotFoundException
+import ray1024.testtasks.companyservermanipulator.model.dto.ManufacturerDto
 import ray1024.testtasks.companyservermanipulator.model.entity.Manufacturer
 import ray1024.testtasks.companyservermanipulator.repository.ManufacturerRepository
 
@@ -21,11 +22,15 @@ class ManufacturerService(
         return manufacturerRepository.save(manufacturer)
     }
 
-    fun update(manufacturer: Manufacturer): Manufacturer {
-        if (manufacturerRepository.findById(manufacturer.id).isEmpty) {
-            throw ResourceNotFoundException(manufacturer.id.toString())
-        }
-        return manufacturerRepository.save(manufacturer)
+    fun update(id: Long, dto: ManufacturerDto): Manufacturer {
+        val manufacturer = manufacturerRepository.findById(id).orElseThrow { ResourceNotFoundException(id.toString()) }
+        return manufacturerRepository.save(
+            Manufacturer(
+                id = id,
+                name = dto.name ?: manufacturer.name,
+                description = dto.description ?: manufacturer.description
+            )
+        )
     }
 
     fun delete(id: Long) {
