@@ -1,16 +1,20 @@
 package ray1024.testtasks.companyservermanipulator.service
 
+import org.mapstruct.factory.Mappers
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import ray1024.testtasks.companyservermanipulator.exception.ResourceAlreadyExistsException
 import ray1024.testtasks.companyservermanipulator.exception.ResourceNotFoundException
+import ray1024.testtasks.companyservermanipulator.model.dto.CompanyDto
 import ray1024.testtasks.companyservermanipulator.model.entity.Company
+import ray1024.testtasks.companyservermanipulator.model.mapper.DepartmentMapper
 import ray1024.testtasks.companyservermanipulator.repository.CompanyRepository
 
 @Service
 class CompanyService(
-    private val companyRepository: CompanyRepository
+    private val companyRepository: CompanyRepository,
+    private val mapper: DepartmentMapper = Mappers.getMapper(DepartmentMapper::class.java)
 ) {
     fun create(company: Company): Company {
         if (companyRepository.findById(company.id).isPresent) {
@@ -19,11 +23,17 @@ class CompanyService(
         return companyRepository.save(company)
     }
 
-    fun update(company: Company): Company {
-        if (companyRepository.findById(company.id).isEmpty) {
-            throw ResourceNotFoundException(company.id.toString())
-        }
-        return companyRepository.save(company)
+    fun update(id: Long, dto: CompanyDto): Company {
+        val company = companyRepository.findById(id).orElseThrow { ResourceNotFoundException(id.toString()) }
+        return companyRepository.save(
+            Company(
+                id = id,
+                name = dto.name ?: company.name,
+                description = dto.description ?: company.description,
+                foundedDate = dto.foundedDate ?: company.foundedDate,
+                departments = dto.departments?.map { mapper.toEntity(it) } ?: company.departments
+            )
+        )
     }
 
     fun delete(id: Long) {
