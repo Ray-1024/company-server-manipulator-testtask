@@ -7,6 +7,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import ray1024.testtasks.companyservermanipulator.exception.BusinessException
+import ray1024.testtasks.companyservermanipulator.exception.ResourceAlreadyExistsException
 import ray1024.testtasks.companyservermanipulator.exception.ResourceNotFoundException
 import ray1024.testtasks.companyservermanipulator.model.response.ErrorResponse
 
@@ -14,6 +15,14 @@ import ray1024.testtasks.companyservermanipulator.model.response.ErrorResponse
 class ExceptionsHandler {
     @ExceptionHandler(ResourceNotFoundException::class)
     fun handleResourceNotFound(ex: ResourceNotFoundException): ResponseEntity<ErrorResponse> {
+        val errorResponse = ErrorResponse(
+            message = ex.message
+        )
+        return ResponseEntity(errorResponse, HttpStatus.NOT_FOUND)
+    }
+
+    @ExceptionHandler(ResourceAlreadyExistsException::class)
+    fun handleResourceNotFound(ex: ResourceAlreadyExistsException): ResponseEntity<ErrorResponse> {
         val errorResponse = ErrorResponse(
             message = ex.message
         )
