@@ -10,10 +10,12 @@ import ray1024.testtasks.companyservermanipulator.model.dto.CompanyDto
 import ray1024.testtasks.companyservermanipulator.model.entity.Company
 import ray1024.testtasks.companyservermanipulator.model.mapper.DepartmentMapper
 import ray1024.testtasks.companyservermanipulator.repository.CompanyRepository
+import ray1024.testtasks.companyservermanipulator.repository.DepartmentRepository
 
 @Service
 class CompanyService(
     private val companyRepository: CompanyRepository,
+    private val departmentRepository: DepartmentRepository,
     private val mapper: DepartmentMapper = Mappers.getMapper(DepartmentMapper::class.java)
 ) {
     fun create(company: Company): Company {
@@ -31,7 +33,9 @@ class CompanyService(
                 name = dto.name ?: company.name,
                 description = dto.description ?: company.description,
                 foundedDate = dto.foundedDate ?: company.foundedDate,
-                departments = dto.departments?.map { mapper.toEntity(it) } ?: company.departments
+                departments = dto.departmentIds?.map {
+                    departmentRepository.findById(it).orElseThrow { ResourceNotFoundException(id.toString()) }
+                } ?: company.departments
             )
         )
     }
