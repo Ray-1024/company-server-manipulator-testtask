@@ -7,5 +7,4 @@ import ray1024.testtasks.companyservermanipulator.model.entity.Server
 @Mapper(uses = [ServerMapper::class], componentModel = "spring")
 interface ServerMapper {
     fun toDto(entity: Server): ServerDto
-    fun toEntity(dto: ServerDto): Server
 }

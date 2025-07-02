@@ -2,7 +2,6 @@ package ray1024.testtasks.companyservermanipulator.controller
 
 import org.mapstruct.factory.Mappers
 import org.springframework.web.bind.annotation.*
-import ray1024.testtasks.companyservermanipulator.model.dto.DepartmentDto
 import ray1024.testtasks.companyservermanipulator.model.dto.EmployeeDto
 import ray1024.testtasks.companyservermanipulator.model.mapper.EmployeeMapper
 import ray1024.testtasks.companyservermanipulator.model.response.EmployeeListResponse
@@ -12,9 +11,10 @@ import ray1024.testtasks.companyservermanipulator.service.EmployeeService
 @RestController
 @RequestMapping("/api/employees")
 class EmployeeController(
-    val employeeService: EmployeeService,
-    private val mapper: EmployeeMapper = Mappers.getMapper(EmployeeMapper::class.java)
+    val employeeService: EmployeeService
 ) {
+    private val mapper: EmployeeMapper = Mappers.getMapper(EmployeeMapper::class.java)
+
     @GetMapping
     fun getAll(
         @RequestParam(name = "page", defaultValue = "1") pageNumber: Int = 1,
@@ -25,7 +25,7 @@ class EmployeeController(
 
     @PostMapping
     fun create(@RequestBody dto: EmployeeDto): EmployeeResponse {
-        return EmployeeResponse(mapper.toDto(employeeService.create(mapper.toEntity(dto))))
+        return EmployeeResponse(mapper.toDto(employeeService.create(dto)))
     }
 
     @GetMapping("/{id}")

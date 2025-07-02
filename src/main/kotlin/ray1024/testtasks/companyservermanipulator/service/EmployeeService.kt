@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import ray1024.testtasks.companyservermanipulator.exception.ResourceAlreadyExistsException
 import ray1024.testtasks.companyservermanipulator.exception.ResourceNotFoundException
+import ray1024.testtasks.companyservermanipulator.exception.WrongDtoFieldException
 import ray1024.testtasks.companyservermanipulator.model.dto.EmployeeDto
 import ray1024.testtasks.companyservermanipulator.model.entity.Employee
 import ray1024.testtasks.companyservermanipulator.repository.DepartmentRepository
@@ -17,15 +18,34 @@ class EmployeeService(
     private val departmentRepository: DepartmentRepository,
     private val serverRepository: ServerRepository
 ) {
-    fun create(employee: Employee): Employee {
-        if (employeeRepository.findById(employee.id).isPresent) {
-            throw ResourceAlreadyExistsException(employee.id.toString())
+    fun create(dto: EmployeeDto): Employee {
+        if (dto.id?.let { employeeRepository.findById(it).isPresent } == true) {
+            throw ResourceAlreadyExistsException("Employee with id ${dto.id} already exists")
         }
-        return employeeRepository.save(employee)
+        return employeeRepository.save(
+            Employee(
+                id = 0,
+                firstName = dto.firstName ?: throw WrongDtoFieldException("Employee must have a firstName"),
+                lastName = dto.lastName ?: throw WrongDtoFieldException("Employee must have a lastName"),
+                email = dto.email ?: throw WrongDtoFieldException("Employee must have an email"),
+                position = dto.position ?: throw WrongDtoFieldException("Employee must have a position"),
+                hireDate = dto.hireDate ?: throw WrongDtoFieldException("Employee must have a hireDate"),
+                department = dto.departmentId?.let {
+                    departmentRepository.findById(it)
+                        .orElseThrow { ResourceNotFoundException("Department with id = $it not found") }
+                } ?: throw WrongDtoFieldException("Employee must have a department"),
+                responsibleForServers = dto.responsibleForServerIds?.map {
+                    serverRepository.findById(it)
+                        .orElseThrow { ResourceNotFoundException("Server with id = $it not found") }
+                } ?: mutableListOf(),
+            )
+        )
     }
 
     fun update(id: Long, dto: EmployeeDto): Employee {
-        val employee = employeeRepository.findById(id).orElseThrow { ResourceNotFoundException(id.toString()) }
+        val employee =
+            employeeRepository.findById(id)
+                .orElseThrow { ResourceNotFoundException("Employee with id = $id not found") }
         return employeeRepository.save(
             Employee(
                 id = id,
@@ -35,10 +55,12 @@ class EmployeeService(
                 position = dto.position ?: employee.position,
                 hireDate = dto.hireDate ?: employee.hireDate,
                 department = dto.departmentId?.let {
-                    departmentRepository.findById(it).orElseThrow { ResourceNotFoundException(id.toString()) }
+                    departmentRepository.findById(it)
+                        .orElseThrow { ResourceNotFoundException("Department with id = $it not found") }
                 } ?: employee.department,
                 responsibleForServers = dto.responsibleForServerIds?.map {
-                    serverRepository.findById(it).orElseThrow { ResourceNotFoundException(id.toString()) }
+                    serverRepository.findById(it)
+                        .orElseThrow { ResourceNotFoundException("Server with id = $it not found") }
                 } ?: employee.responsibleForServers
             )
         )
@@ -46,7 +68,7 @@ class EmployeeService(
 
     fun delete(id: Long) {
         if (employeeRepository.findById(id).isEmpty) {
-            throw ResourceNotFoundException(id.toString())
+            throw ResourceNotFoundException("Employee with id = $id not found")
         }
         employeeRepository.deleteById(id)
     }

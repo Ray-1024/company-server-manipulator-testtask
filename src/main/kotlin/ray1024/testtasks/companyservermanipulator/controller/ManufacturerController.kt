@@ -11,9 +11,10 @@ import ray1024.testtasks.companyservermanipulator.service.ManufacturerService
 @RestController
 @RequestMapping("/api/manufacturers")
 class ManufacturerController(
-    val manufacturerService: ManufacturerService,
-    private val mapper: ManufacturerMapper = Mappers.getMapper(ManufacturerMapper::class.java)
+    val manufacturerService: ManufacturerService
 ) {
+    private val mapper: ManufacturerMapper = Mappers.getMapper(ManufacturerMapper::class.java)
+
     @GetMapping
     fun getAll(
         @RequestParam(name = "page", defaultValue = "1") pageNumber: Int = 1,
@@ -25,7 +26,7 @@ class ManufacturerController(
 
     @PostMapping
     fun create(@RequestBody dto: ManufacturerDto): ManufacturerResponse {
-        return ManufacturerResponse(mapper.toDto(manufacturerService.create(mapper.toEntity(dto))))
+        return ManufacturerResponse(mapper.toDto(manufacturerService.create(dto)))
     }
 
     @GetMapping("/{id}")

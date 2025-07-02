@@ -11,9 +11,10 @@ import ray1024.testtasks.companyservermanipulator.service.CompanyService
 @RestController
 @RequestMapping("/api/companies")
 class CompanyController(
-    val companyService: CompanyService,
-    private val mapper: CompanyMapper = Mappers.getMapper(CompanyMapper::class.java)
+    val companyService: CompanyService
 ) {
+    private val mapper: CompanyMapper = Mappers.getMapper(CompanyMapper::class.java)
+
     @GetMapping
     fun getAll(
         @RequestParam(name = "page", defaultValue = "1") pageNumber: Int = 1,
@@ -24,7 +25,7 @@ class CompanyController(
 
     @PostMapping
     fun create(@RequestBody dto: CompanyDto): CompanyResponse {
-        return CompanyResponse(mapper.toDto(companyService.create(mapper.toEntity(dto))))
+        return CompanyResponse(mapper.toDto(companyService.create(dto)))
     }
 
     @GetMapping("/{id}")

@@ -1,32 +1,42 @@
 package ray1024.testtasks.companyservermanipulator.service
 
-import org.mapstruct.factory.Mappers
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import ray1024.testtasks.companyservermanipulator.exception.ResourceAlreadyExistsException
 import ray1024.testtasks.companyservermanipulator.exception.ResourceNotFoundException
+import ray1024.testtasks.companyservermanipulator.exception.WrongDtoFieldException
 import ray1024.testtasks.companyservermanipulator.model.dto.CompanyDto
 import ray1024.testtasks.companyservermanipulator.model.entity.Company
-import ray1024.testtasks.companyservermanipulator.model.mapper.DepartmentMapper
 import ray1024.testtasks.companyservermanipulator.repository.CompanyRepository
 import ray1024.testtasks.companyservermanipulator.repository.DepartmentRepository
 
 @Service
 class CompanyService(
     private val companyRepository: CompanyRepository,
-    private val departmentRepository: DepartmentRepository,
-    private val mapper: DepartmentMapper = Mappers.getMapper(DepartmentMapper::class.java)
+    private val departmentRepository: DepartmentRepository
 ) {
-    fun create(company: Company): Company {
-        if (companyRepository.findById(company.id).isPresent) {
-            throw ResourceAlreadyExistsException(company.name)
+    fun create(dto: CompanyDto): Company {
+        if (dto.id?.let { companyRepository.findById(it).isPresent } == true) {
+            throw ResourceAlreadyExistsException("Company with id ${dto.id} already exists")
         }
-        return companyRepository.save(company)
+        return companyRepository.save(
+            Company(
+                id = 0,
+                name = dto.name ?: throw WrongDtoFieldException("Company must have a name"),
+                description = dto.description ?: throw WrongDtoFieldException("Company must have a description"),
+                foundedDate = dto.foundedDate ?: throw WrongDtoFieldException("Company must have a foundedDate"),
+                departments = dto.departmentIds?.map {
+                    departmentRepository.findById(it)
+                        .orElseThrow { ResourceNotFoundException("Department with id = $it not found") }
+                } ?: mutableListOf()
+            )
+        )
     }
 
     fun update(id: Long, dto: CompanyDto): Company {
-        val company = companyRepository.findById(id).orElseThrow { ResourceNotFoundException(id.toString()) }
+        val company =
+            companyRepository.findById(id).orElseThrow { ResourceNotFoundException("Company with id = $id not found") }
         return companyRepository.save(
             Company(
                 id = id,
@@ -34,7 +44,8 @@ class CompanyService(
                 description = dto.description ?: company.description,
                 foundedDate = dto.foundedDate ?: company.foundedDate,
                 departments = dto.departmentIds?.map {
-                    departmentRepository.findById(it).orElseThrow { ResourceNotFoundException(id.toString()) }
+                    departmentRepository.findById(it)
+                        .orElseThrow { ResourceNotFoundException("Department with id = $it not found") }
                 } ?: company.departments
             )
         )
@@ -42,7 +53,7 @@ class CompanyService(
 
     fun delete(id: Long) {
         if (companyRepository.findById(id).isEmpty) {
-            throw ResourceNotFoundException(id.toString())
+            throw ResourceNotFoundException("Company with id = $id not found")
         }
         companyRepository.deleteById(id)
     }

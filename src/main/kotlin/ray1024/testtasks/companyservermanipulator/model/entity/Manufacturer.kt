@@ -1,6 +1,8 @@
 package ray1024.testtasks.companyservermanipulator.model.entity
 
 import jakarta.persistence.*
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Size
 
 @Entity
 data class Manufacturer(
@@ -9,8 +11,12 @@ data class Manufacturer(
     var id: Long = 0,
 
     @Column(nullable = false)
+    @Size(min = 1, max = 64)
+    @NotBlank
     var name: String,
 
     @Column(nullable = false)
+    @Size(min = 1, max = 2048)
+    @NotBlank
     var description: String
 )

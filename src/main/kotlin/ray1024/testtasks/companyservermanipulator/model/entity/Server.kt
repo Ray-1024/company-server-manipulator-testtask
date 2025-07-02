@@ -1,6 +1,8 @@
 package ray1024.testtasks.companyservermanipulator.model.entity
 
 import jakarta.persistence.*
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Size
 import java.time.LocalDate
 
 @Entity
@@ -9,6 +11,8 @@ data class Server(
     var id: Long = 0,
 
     @Column(nullable = false)
+    @Size(min = 1, max = 256)
+    @NotBlank
     var name: String,
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -16,6 +20,8 @@ data class Server(
     var manufacturer: Manufacturer,
 
     @Column(nullable = false, unique = true)
+    @Size(min = 5, max = 45)
+    @NotBlank
     var ipAddress: String,
 
     @Column(nullable = false)

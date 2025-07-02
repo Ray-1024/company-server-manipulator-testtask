@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import ray1024.testtasks.companyservermanipulator.exception.ResourceAlreadyExistsException
 import ray1024.testtasks.companyservermanipulator.exception.ResourceNotFoundException
+import ray1024.testtasks.companyservermanipulator.exception.WrongDtoFieldException
 import ray1024.testtasks.companyservermanipulator.model.dto.ServerDto
 import ray1024.testtasks.companyservermanipulator.model.entity.Server
 import ray1024.testtasks.companyservermanipulator.repository.DepartmentRepository
@@ -19,11 +20,34 @@ class ServerService(
     private val departmentRepository: DepartmentRepository,
     private val employeeRepository: EmployeeRepository
 ) {
-    fun create(server: Server): Server {
-        if (serverRepository.findById(server.id).isPresent) {
-            throw ResourceAlreadyExistsException(server.name)
+    fun create(dto: ServerDto): Server {
+        if (dto.id?.let { serverRepository.findById(it).isPresent } == true) {
+            throw ResourceAlreadyExistsException("Server with id ${dto.id} already exists")
         }
-        return serverRepository.save(server)
+        return serverRepository.save(
+            Server(
+                id = 0,
+                name = dto.name ?: throw WrongDtoFieldException("Server must have a name"),
+                manufacturer = dto.manufacturerId?.let {
+                    manufacturerRepository.findById(it)
+                        .orElseThrow { ResourceNotFoundException("Manufacturer with id = $it not found") }
+                } ?: throw WrongDtoFieldException("Server must have a manufacturer"),
+                ipAddress = dto.ipAddress ?: throw WrongDtoFieldException("Server must have an ip address"),
+                ramSizeBytes = dto.ramSizeBytes ?: throw WrongDtoFieldException("Server must have ram size in bytes"),
+                storageSizeBytes = dto.storageSizeBytes
+                    ?: throw WrongDtoFieldException("Server must have storage size in bytes"),
+                purchaseDate = dto.purchaseDate ?: throw WrongDtoFieldException("Server must have a purchaseDate"),
+                isActive = dto.isActive ?: throw WrongDtoFieldException("Server must have active or inactive status"),
+                department = dto.departmentId?.let {
+                    departmentRepository.findById(it)
+                        .orElseThrow { ResourceNotFoundException("Department with id = $it not found") }
+                } ?: throw WrongDtoFieldException("Server must have owner department"),
+                responsibleEmployee = dto.responsibleEmployeeId?.let {
+                    employeeRepository.findById(it)
+                        .orElseThrow { ResourceNotFoundException("Employee with id = $it not found") }
+                } ?: throw WrongDtoFieldException("Server must have responsible employee")
+            )
+        )
     }
 
     fun update(id: Long, dto: ServerDto): Server {
@@ -52,7 +76,7 @@ class ServerService(
 
     fun delete(id: Long) {
         if (serverRepository.findById(id).isEmpty) {
-            throw ResourceNotFoundException(id.toString())
+            throw ResourceNotFoundException("Server with id = $id not found")
         }
         serverRepository.deleteById(id)
     }

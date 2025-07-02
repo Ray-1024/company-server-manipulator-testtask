@@ -11,9 +11,10 @@ import ray1024.testtasks.companyservermanipulator.service.DepartmentService
 @RestController
 @RequestMapping("/api/divisions")
 class DepartmentController(
-    val departmentService: DepartmentService,
-    private val mapper: DepartmentMapper = Mappers.getMapper(DepartmentMapper::class.java)
+    val departmentService: DepartmentService
 ) {
+    private val mapper: DepartmentMapper = Mappers.getMapper(DepartmentMapper::class.java)
+
     @GetMapping
     fun getAll(
         @RequestParam(name = "page", defaultValue = "1") pageNumber: Int = 1,
@@ -24,7 +25,7 @@ class DepartmentController(
 
     @PostMapping
     fun create(@RequestBody dto: DepartmentDto): DepartmentResponse {
-        return DepartmentResponse(mapper.toDto(departmentService.create(mapper.toEntity(dto))))
+        return DepartmentResponse(mapper.toDto(departmentService.create(dto)))
     }
 
     @GetMapping("/{id}")
