@@ -17,7 +17,7 @@ class ManufacturerController(
 
     @GetMapping
     fun getAll(
-        @RequestParam(name = "page", defaultValue = "1") pageNumber: Int = 1,
+        @RequestParam(name = "page", defaultValue = "0") pageNumber: Int = 0,
         @RequestParam(name = "size", defaultValue = "10") pageSize: Int = 10,
     ): ManufacturerListResponse {
         return ManufacturerListResponse(manufacturerService.getAll(pageNumber, pageSize).map { mapper.toDto(it) }

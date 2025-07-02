@@ -9,7 +9,7 @@ import ray1024.testtasks.companyservermanipulator.model.response.DepartmentRespo
 import ray1024.testtasks.companyservermanipulator.service.DepartmentService
 
 @RestController
-@RequestMapping("/api/divisions")
+@RequestMapping("/api/departments")
 class DepartmentController(
     val departmentService: DepartmentService
 ) {
@@ -17,7 +17,7 @@ class DepartmentController(
 
     @GetMapping
     fun getAll(
-        @RequestParam(name = "page", defaultValue = "1") pageNumber: Int = 1,
+        @RequestParam(name = "page", defaultValue = "0") pageNumber: Int = 0,
         @RequestParam(name = "size", defaultValue = "10") pageSize: Int = 10,
     ): DepartmentListResponse {
         return DepartmentListResponse(departmentService.getAll(pageNumber, pageSize).map { mapper.toDto(it) }.toList())
