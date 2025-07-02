@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="CompanyServerManipulatorTestTaskKt" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+    <module name="company-server-manipulator-testtask" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="ray1024.testtasks.companyservermanipulator.CompanyServerManipulatorTestTaskKt" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
